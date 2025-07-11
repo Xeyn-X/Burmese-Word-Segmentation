@@ -1,5 +1,4 @@
 torch
-torchcrf
 numpy
 streamlit
 streamlit-extras
