@@ -46,7 +46,7 @@ if os.path.exists(css_path):
 
 # --- Page Title ---
 st.markdown("<h1 style='text-align: center;'>Word Segmentation</h1>", unsafe_allow_html=True)
-st.markdown("<h6 style='text-align: center; color: #b8520a;'>Using BiLSTM, CRF and BiLSTM-CRF</h6>", unsafe_allow_html=True)
+st.markdown("<h6 style='text-align: center; color: #b8520a;'>Using LSTM, BiLSTM, CRF and BiLSTM-CRF</h6>", unsafe_allow_html=True)
 
 # --- Input Area ---
 input_text = st.text_area("Input Sentence", placeholder="Enter Input ...", key="input")
