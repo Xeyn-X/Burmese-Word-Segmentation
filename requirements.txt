@@ -3,3 +3,4 @@ torchcrf
 numpy
 streamlit
 streamlit-extras
+sklearn_crfsuite
