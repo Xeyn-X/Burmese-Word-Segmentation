@@ -86,14 +86,14 @@ with stylable_container(
             text-align: center;
         }
         button:hover p {
-            color: #d7d9d8;
+            color: #6b340d;
         }
         .st-emotion-cache-13lcgu3:active {
             background-color: #de6c1a;
             border: none;
         }
         button:active p {
-            color: #d7d9d8;
+            color: #6b340d;
         }
     """,
 ):

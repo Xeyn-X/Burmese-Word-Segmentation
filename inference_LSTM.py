@@ -32,17 +32,21 @@ class LSTMInference:
 
     def segment(self, text):
         specials = r'["\'“”‘’{}()\[\]\.,;:?!\s]'  # punctuation + whitespace
+
+        # Insert separators around Burmese, English, numbers, and special characters
         text = re.sub(
-            rf'(?:(?<!္)([က-ဪဿ၊-၏]|[၀-၉]+|[A-Za-z]+|\d+|{specials}|[^က-၏A-Za-z0-9]+)(?![ှျ]?[့္်]))',
-            r'|\1',
-            text
+            rf"(?:(?<!္)([က-ဪဿ၊-၏]|[၀-၉]+|[A-Za-z]+|\d+|{specials}|[^က-၏A-Za-z0-9]+)(?![ှျ]?[့္်]))",
+            r"|\1",
+            text,
         )
-        return [seg for seg in re.split(r'\|', text) if seg]
+
+        return [seg for seg in re.split(r"\|", text) if seg]
 
     def predict(self, text):
         result = []
         buffer = ""
-        tokens = self.segment(text.replace(' ', ''))
+        segmented = self.segment(text)
+        tokens = [t for t in segmented if t.strip() != ""]
 
         with torch.no_grad():
             token_ids = [self.token2idx.get(tok, self.token2idx["<UNK>"]) for tok in tokens]
@@ -55,14 +59,23 @@ class LSTMInference:
             tags = [self.idx2tag[idx] for idx in pred_indices[:len(tokens)]]
             predicted = list(zip(tokens, tags))
 
-            for word, tag in predicted:
-                if tag == 'B':
-                    if buffer:
+            for i, (word, tag) in enumerate(predicted):
+                if tag == "B":
+                    # Look ahead: check next tag if it exists
+                    next_tag = predicted[i + 1][1] if i + 1 < len(predicted) else None
+
+                    # Only split if next tag is NOT I or E
+                    if next_tag not in ("I", "E"):
+                        buffer += word
                         result.append(buffer)
-                    buffer = word
-                elif tag == 'I':
+                        buffer = ""
+                    else:
+                        buffer += word
+
+                elif tag == "I":
                     buffer += word
-                elif tag in ('E', 'S'):
+
+                elif tag in ("E", "S"):
                     buffer += word
                     result.append(buffer)
                     buffer = ""

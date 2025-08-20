@@ -7,12 +7,21 @@ class CRFInference:
             self.model = pickle.load(file)
 
     def _segment_syllables(self, text):
-        pattern = r'(?:(?<!္)([က-ဪဿ၊-၏]|[၀-၉]+|[^က-၏]+)(?![ှျ]?[့္်]))'
-        return [s for s in re.split(r'\|', re.sub(pattern, r'|\1', text)) if s]
+        specials = r'["\'“”‘’{}()\[\]\.,;:?!\s]'  # punctuation + whitespace
+
+        # Insert separators around Burmese, English, numbers, and special characters
+        text = re.sub(
+            rf"(?:(?<!္)([က-ဪဿ၊-၏]|[၀-၉]+|[A-Za-z]+|\d+|{specials}|[^က-၏A-Za-z0-9]+)(?![ှျ]?[့္်]))",
+            r"|\1",
+            text,
+        )
+
+        return [seg for seg in re.split(r"\|", text) if seg]
 
     def _syllables_to_dicts(self, text):
         syllables = self._segment_syllables(text)
-        return [{'syl': syl} for syl in syllables]
+        tokens = [t for t in syllables if t.strip() != ""]
+        return [{'syl': syl} for syl in tokens]
 
     def _extract_features(self, sentence):
         feats_per_syl = []
@@ -48,7 +57,6 @@ class CRFInference:
         return words
 
     def segment_text(self, text):
-        text = text.replace(' ', '')
         syllable_dicts = self._syllables_to_dicts(text)
         features = [self._extract_features(syllable_dicts)]
         predicted_tags = self.model.predict(features)[0]
