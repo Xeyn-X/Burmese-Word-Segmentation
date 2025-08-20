@@ -8,9 +8,7 @@ html, body, .stApp {
 /* Optional: Streamlit headers */
 h1, h2, h3, h4, h5, h6 {
     font-weight: bold !important;
-
 }
-
 
 .custom-footer {
         position: fixed;
@@ -23,4 +21,4 @@ h1, h2, h3, h4, h5, h6 {
         padding: 10px;
         font-size: 14px;
         border-top: 1px solid #ccc;
-    }
+}
