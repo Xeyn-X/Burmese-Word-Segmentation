@@ -42,9 +42,50 @@ class BiLSTMAttentionInference:
 
         return [seg for seg in re.split(r"\|", text) if seg]
 
+    def name_segment(self, text):
+        """Segment Burmese text using regular expressions."""
+        text = re.sub(r'(?:(?<!္)([က-ဪဿ၊-၏]|[၀-၉]+|[^က-၏]+)(?![ှျ]?[့္်]))', r' \1', text)
+        return text.strip()
+    
+    def merge_syllables(self, text):
+        special_words = ['ဦး', 'ဒေါ်', 'မောင်', 'မ','ကို']
+        dict_file = 'name_dict/name_dict_clean.txt'
+        with open(dict_file, 'r', encoding='utf-8') as f:
+            syllable_dict = set(self.name_segment(line.strip()).replace(' ', '') for line in f.readlines())
+
+        words = text.split()  
+        merged_text = []
+        i = 0
+
+        while i < len(words):
+            match_found = False
+
+            # Check for longest possible match in dictionary
+            for j in range(len(words), i, -1):
+                phrase = ''.join(words[i:j])  # Merge words
+                if phrase in syllable_dict:
+                    merged_text.append(phrase)
+                    if merged_text[-2] in special_words:
+                        merged_text[-2] += merged_text[-1]
+                        merged_text.pop()
+                    i = j
+                    match_found = True
+                    break
+
+            if not match_found:
+                merged_text.append(words[i])
+                i += 1
+
+        return ' '.join(merged_text)
+    
     def predict(self, text):
         result = []
         buffer = ""
+        # Regex patterns
+        eng_pattern = re.compile(r"^[A-Za-z]+$")
+        num_pattern = re.compile(r"^[0-9]+$")
+        special_pattern = re.compile(r"^[^A-Za-z0-9က-ဿ၀-၉]+$")
+        
         segmented = self.segment(text)
         tokens = [t for t in segmented if t.strip() != ""]
 
@@ -60,6 +101,15 @@ class BiLSTMAttentionInference:
             predicted = list(zip(tokens, tags))
 
             for i, (word, tag) in enumerate(predicted):
+                check_word = bool(eng_pattern.match(word) or num_pattern.match(word) or special_pattern.match(word))
+                if check_word:
+                    # flush buffer first if exists
+                    if buffer:
+                        result.append(buffer)
+                        buffer = ""
+                    result.append(word)  # keep split element separately
+                    continue
+
                 if tag == "B":
                     # Look ahead: check next tag if it exists
                     next_tag = predicted[i + 1][1] if i + 1 < len(predicted) else None
@@ -83,4 +133,7 @@ class BiLSTMAttentionInference:
             if buffer:
                 result.append(buffer)
 
-        return " ".join(result)
+            segment_result = " ".join(result)
+            final = self.merge_syllables(segment_result)
+
+        return final
