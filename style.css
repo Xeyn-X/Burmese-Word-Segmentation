@@ -8,6 +8,13 @@ html, body, .stApp {
 /* Optional: Streamlit headers */
 h1, h2, h3, h4, h5, h6 {
     font-weight: bold !important;
+    
+}
+
+textarea {
+
+    height: 200px !important;  /* optional height */
+    font-size: 16px;           /* optional font size */
 }
 
 .custom-footer {

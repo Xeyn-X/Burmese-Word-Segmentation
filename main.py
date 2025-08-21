@@ -62,43 +62,77 @@ if os.path.exists(css_path):
     with open(css_path) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+
 # --- Page Title ---
-st.markdown("<h1 style='text-align: center;'>Word Segmentation</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; margin: 4px auto;'>Burmese Word Segmentation</h1>", unsafe_allow_html=True)
 st.markdown("<h6 style='text-align: center; color: #b8520a;'>Comparing Statistical, Neural and Hybrid Methods</h6>", unsafe_allow_html=True)
+
 
 
 # --- Input Area ---
 input_text = st.text_area("Input Sentence", placeholder="Enter Input ...", key="input")
 
-# --- Stylable Button ---
-with stylable_container(
-    "btn",
-    css_styles="""
-        button {
-            background-color: #b8520a;
-            color: white;
-            display: block;
-            margin: 40px auto;
-            padding: 10px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 16px;
-            text-align: center;
-        }
-        button:hover p {
-            color: #6b340d;
-        }
-        .st-emotion-cache-13lcgu3:active {
-            background-color: #de6c1a;
-            border: none;
-        }
-        button:active p {
-            color: #6b340d;
-        }
-    """,
-):
-    run_segmentation = st.button("Segmentation")
+def reset_input():
+    st.session_state.input = "" 
 
+col1, col2,col3, col4 = st.columns(4)
+with col1:
+    # --- Stylable Button ---
+    with stylable_container(
+        "btn",
+        css_styles="""
+            button {
+                background-color: #b8520a;
+                color: white;
+                display: block;
+                margin: 40px auto;
+                padding: 10px 30px;
+                border-radius: 25px;
+                font-weight: 600;
+                font-size: 16px;
+
+            }
+            button:hover p {
+                color: #6b340d;
+            }
+            .st-emotion-cache-13lcgu3:active {
+                background-color: #de6c1a;
+                border: none;
+            }
+            button:active p {
+                color: #6b340d;
+            }
+        """,
+    ):
+        run_segmentation = st.button("Segmentation")
+with col2:
+    with stylable_container(
+        "rst",
+        css_styles="""
+            button {
+                background-color: #b8980a;
+                color: white;
+                display: block;
+                margin: 40px 1px;
+                padding: 10px 30px;
+                border-radius: 25px;
+                font-weight: 600;
+                font-size: 16px;
+
+            }
+            button:hover p {
+                color: #6b340d;
+            }
+            .st-emotion-cache-13lcgu3:active {
+                background-color: #de6c1a;
+                border: none;
+            }
+            button:active p {
+                color: #6b340d;
+            }
+        """,
+    ):
+        st.button("Reset", on_click=reset_input)
 
 # --- Segmentation and Display ---
 if run_segmentation and input_text.strip():
@@ -122,6 +156,7 @@ if run_segmentation and input_text.strip():
                 f"<span style='color: #b8520a; font-size: 15px;'>{prediction}</span>",
                 unsafe_allow_html=True
             )
+            
 
 
 # --- Footer ---
